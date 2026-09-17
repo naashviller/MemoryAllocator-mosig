@@ -13,9 +13,18 @@ void init_fast_pool(mem_pool_t *p, size_t size, size_t min_request_size, size_t 
 
 void *mem_alloc_fast_pool(mem_pool_t *pool, size_t size)
 {
-    /* TO BE IMPLEMENTED */
-    printf("%s:%d: Please, implement me!\n", __FUNCTION__, __LINE__);
-    return NULL;
+    if (pool -> first_free != NULL){
+
+        mem_fast_free_block_t *block = (mem_fast_free_block_t *)pool->first_free;
+        void *res = block;
+        pool->first_free = block->next;
+        
+        return res;
+
+    } else {
+        printf("No free blocks available in the pool.\n");
+        return NULL;
+    }
 }
 
 void mem_free_fast_pool(mem_pool_t *pool, void *b)
