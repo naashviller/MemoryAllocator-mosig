@@ -7,8 +7,26 @@
 
 void init_fast_pool(mem_pool_t *p, size_t size, size_t min_request_size, size_t max_request_size)
 {
-    /* TO BE IMPLEMENTED */
-    printf("%s:%d: Please, implement me!\n", __FUNCTION__, __LINE__);
+    void *start_adr = my_mmap(size);
+    int c = 0;
+    mem_fast_free_block_t *block;
+    
+    if (start_adr != NULL)
+    {
+        c = size / max_request_size;
+
+        p -> first_free = start_adr;
+        p ->total_pool_size = size;
+
+        for (int i = 0; i < c-1; i++)
+        {
+            block = (mem_fast_free_block_t *)((char *)start_adr + i * max_request_size);
+            block ->next = (mem_fast_free_block_t *)((char *)start_adr + (i + 1) * max_request_size);
+        } 
+        block ->next = NULL;
+    
+    }
+    
 }
 
 void *mem_alloc_fast_pool(mem_pool_t *pool, size_t size)
