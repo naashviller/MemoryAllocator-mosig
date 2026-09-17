@@ -29,8 +29,10 @@ void *mem_alloc_fast_pool(mem_pool_t *pool, size_t size)
 
 void mem_free_fast_pool(mem_pool_t *pool, void *b)
 {
-    /* TO BE IMPLEMENTED */
-    printf("%s:%d: Please, implement me!\n", __FUNCTION__, __LINE__);
+    mem_fast_free_block_t *local_var = (mem_fast_free_block_t *)b;
+    local_var->next = pool->first_free;
+    pool->first_free = local_var;
+
 }
 
 size_t mem_get_allocated_block_size_fast_pool(mem_pool_t *pool, void *addr)
