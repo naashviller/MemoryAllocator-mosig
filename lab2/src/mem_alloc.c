@@ -234,10 +234,91 @@ size_t memory_get_allocated_block_size(void *addr)
     return res;
 }
 
+/*a8
+a16
+p
+f1
+p*/
 void print_mem_state(void)
 {
-    /* TO BE IMPLEMENTED */
-    printf("Please, implement me!\n");
+    for(int i=0; i<NB_MEM_POOLS; i++)
+    {
+        printf("Pool %d: [", i);
+        switch (mem_pools[i].pool_type)
+        {
+        case FAST_POOL:
+        {
+            char *current_position = (char *)mem_pools[i].start_addr;
+            char *end_position = (char *)mem_pools[i].end_addr;
+            
+            while(current_position < end_position)
+            {
+                mem_fast_free_block_t *free_block = (mem_fast_free_block_t *)mem_pools[i].first_free;
+                int free = 0;
+                while(free_block!=NULL)
+                {
+                    if((char *)free_block == current_position)
+                    {
+                        free = 1;
+                        break;
+                    }
+                    free_block = free_block->next;
+                }
+            
+                
+                if(free)
+                {
+                    for(size_t j=0; j<mem_pools[i].max_req_size; j++)
+                    {
+                        printf(".");
+                    }
+                }
+                else
+                {
+                    for(size_t j=0; j<mem_pools[i].max_req_size; j++)
+                    {
+                        printf("X");
+                    }
+                }
+                current_position += mem_pools[i].max_req_size;
+            }
+            break;
+        }
+        case STANDARD_POOL:
+        {
+            char *current_position = (char *)mem_pools[i].start_addr;
+            char *end_position = (char *)mem_pools[i].end_addr;
+
+            while(current_position<end_position)
+            {
+                mem_std_block_header_footer_t *header = (mem_std_block_header_footer_t *)current_position;
+                size_t payload_size = get_block_size(header);
+                size_t total_block_size = sizeof(mem_std_block_header_footer_t) + payload_size + sizeof(mem_std_block_header_footer_t);
+                
+                if(is_block_free(header))
+                {
+                    for(size_t j=0; j<total_block_size; j++)
+                    {
+                        printf(".");
+                    }
+                }
+                else
+                {
+                    for(size_t j=0; j<total_block_size; j++)
+                    {
+                        printf("X");
+                    }
+                }
+                current_position += total_block_size;
+            }
+            break;
+        }
+        default: /* we should never reach this case */
+            assert(0);
+        }
+        printf("]");
+        printf("\n");
+    }
 }
 
 void print_free_info(void *addr)
